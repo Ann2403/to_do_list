@@ -20,6 +20,7 @@ Copy file .env.example and rename to .env, run:
 Run migration to database:
 
     php artisan migrate
+    php artisan db:seed
 
 Run application:
 

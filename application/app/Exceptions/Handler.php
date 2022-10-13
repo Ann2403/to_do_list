@@ -2,11 +2,25 @@
 
 namespace App\Exceptions;
 
+use App\Http\Factories\ResponseFactory;
+use App\Services\Transformer\TransformDataResponseToArray;
+use Illuminate\Contracts\Container\Container;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpFoundation\Response;
 use Throwable;
+use TypeError;
 
 class Handler extends ExceptionHandler
 {
+    public function __construct(
+        Container $container,
+        private readonly TransformDataResponseToArray $responseToArray,
+        private readonly ResponseFactory $dataFactory,
+    ) {
+        parent::__construct($container);
+    }
+
     /**
      * A list of exception types with their corresponding custom log levels.
      *
@@ -41,10 +55,43 @@ class Handler extends ExceptionHandler
      *
      * @return void
      */
-    public function register()
+    public function register(): void
     {
-        $this->reportable(function (Throwable $e) {
+        $this->reportable(static function (Throwable $e) {
             //
         });
+    }
+
+    public function render($request, Throwable $exception): Response
+    {
+        if ($request->is('api/*')) {
+            if ($exception instanceof ValidationException) {
+                return response()->json(
+                    $this->dataFactory->dataResponse(
+                        'ERROR: Unprocessable Content',
+                        $exception->status,
+                        $this->responseToArray->invalid($exception->errors())
+                    ),
+                    $exception->status,
+                );
+            }
+
+            if ($exception instanceof TypeError) {
+                throw new InvalidRequestException('Argument is not valid!', 400);
+            }
+
+            if ($exception instanceof InvalidRequestException) {
+                return response()->json(
+                    $this->dataFactory->dataResponse(
+                        'ERROR: Bad Request',
+                        $exception->getCode(),
+                        $this->responseToArray->exception($exception->getMessage())
+                    ),
+                    $exception->getCode(),
+                );
+            }
+        }
+
+        return parent::render($request, $exception);
     }
 }

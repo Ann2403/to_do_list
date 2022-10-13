@@ -17,6 +17,9 @@ down:
 migrate:
 	docker compose exec php-fpm php artisan migrate
 
+seed:
+	docker compose exec php-fpm php artisan db:seed
+
 migraterollback:
 	docker compose exec php-fpm php artisan migrate:rollback
 
@@ -24,7 +27,10 @@ clearchash:
 	docker compose exec php-fpm php artisan cache:clear
 
 createvalidate:
-	docker compose exec php-fpm php artisan make:request Api/V1/MasterCreateRequest
+	docker compose exec php-fpm php artisan make:request Api/V1/CardCreateRequest
 
 resourse:
-	docker compose exec php-fpm php artisan make:resource MasterResource
+	docker compose exec php-fpm php artisan make:resource TokenResource
+
+factory:
+	docker compose exec php-fpm php artisan make:factory CardFactory

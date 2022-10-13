@@ -1,6 +1,7 @@
 <?php
 
-use Illuminate\Http\Request;
+use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\CardsController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -14,6 +15,16 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+Route::post('/login', [AuthController::class, 'login']);
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
+
+Route::middleware(['auth:sanctum'])->prefix('/v1')->group(static function () {
+    Route::prefix('/cards')->group(static function () {
+        Route::get('/', [CardsController::class, 'index']);
+        Route::get('/{id}', [CardsController::class, 'show']);
+        Route::post('/', [CardsController::class, 'create']);
+        Route::put('/{id}', [CardsController::class, 'update']);
+        Route::delete('/{id}', [CardsController::class, 'delete']);
+    });
 });
