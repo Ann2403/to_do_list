@@ -43,7 +43,7 @@ class AuthController extends Controller
         if ($token) {
             return response([
                 'user' => new UserResource($this->authFacade->authUser()),
-                new TokenResource($token)
+                'token' => new TokenResource($token)
             ]);
         }
 

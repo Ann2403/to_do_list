@@ -22,7 +22,7 @@ class TokenResource extends JsonResource
         $token = $this;
 
         return [
-            'token' => $token->getValue()->plainTextToken,
+            'value' => $token->getValue()->plainTextToken,
         ];
     }
 }
